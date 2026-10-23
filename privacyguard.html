@@ -19,6 +19,7 @@
     ul { margin: 8px 0 16px 20px; }
     li { margin-bottom: 6px; font-size: 15px; }
     a { color: #1a73e8; }
+    code { background: #f1f3f4; padding: 1px 5px; border-radius: 4px; font-size: 14px; }
     .highlight { background: #e8f5e9; border-left: 3px solid #2ecc71; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
     .footer { text-align: center; color: #80868b; font-size: 13px; margin-top: 32px; }
   </style>
@@ -27,11 +28,14 @@
   <div class="container">
     <div class="card">
       <h1>PrivacyGuard — Privacy Policy</h1>
-      <p class="date">Last updated: July 8, 2026</p>
+      <p class="date">Last updated: October 23, 2026</p>
 
       <div class="highlight">
-        <strong>&#x1f6e1;&#xfe0f; At a Glance:</strong> PrivacyGuard performs <strong>100% of its detection locally in your browser</strong>.
-        Your text never leaves your device. We never see, collect, or store anything you type or paste.
+        <strong>&#x1f6e1;&#xfe0f; At a Glance:</strong> All detection and redaction runs
+        <strong>locally in your browser</strong>. Your typed or pasted text never leaves your
+        device, and we never see, collect, or store it. The Extension makes one kind of
+        network request only — to our own license server — and only when you validate a
+        Pro license key.
       </div>
 
       <h2>1. Introduction</h2>
@@ -41,13 +45,19 @@
         AI chat tools. This Privacy Policy explains how we handle your information.
       </p>
 
-      <h2>2. Data Collection — We Collect NOTHING</h2>
-      <p><strong>PrivacyGuard does not collect, transmit, or store any user data.</strong></p>
+      <h2>2. What We Collect</h2>
+      <p>
+        <strong>We do not collect, transmit, or store your prompts or the text you scan.</strong>
+      </p>
       <ul>
-        <li><strong>Your text content:</strong> All PII detection (regex matching, Luhn validation)
-          runs entirely in your browser. Your pasted or typed text <strong>never leaves your device</strong>.</li>
-        <li><strong>Detected PII:</strong> Sensitive data matches stay in your browser's memory and
-          are discarded when you close the tab.</li>
+        <li><strong>Your text content:</strong> All sensitive-data detection (regex matching,
+          Luhn validation) runs entirely in your browser. Your pasted or typed text
+          <strong>never leaves your device</strong>.</li>
+        <li><strong>Detected matches:</strong> Sensitive data matches stay in your browser's
+          memory and are discarded when you close the tab.</li>
+        <li><strong>Your Pro license key (only if you activate Pro):</strong> the key you paste
+          is sent to our own license server so it can check whether the key is valid. No text,
+          no prompt, and no other data is sent with it.</li>
         <li><strong>No analytics:</strong> We do not use Google Analytics, Firebase, or any
           third-party analytics service.</li>
         <li><strong>No telemetry:</strong> We do not send crash reports, usage statistics, or
@@ -62,48 +72,65 @@
         The Extension uses Chrome's built-in <code>storage</code> API to save your preferences locally:
       </p>
       <ul>
-        <li>Which PII detection types are enabled/disabled</li>
+        <li>Which sensitive-data detection types are enabled/disabled</li>
         <li>Your scan scope preference (AI sites only vs. all websites)</li>
         <li>Daily scan count (to enforce the free tier limit of 5 scans/day)</li>
-        <li>Aggregate statistics (total scans performed, total PII items blocked)</li>
+        <li>Aggregate statistics (total scans performed, total items blocked)</li>
+        <li>If you activate Pro: the license key you pasted, plus the license email and expiry
+          returned by our server, and your Pro activation state</li>
       </ul>
       <p>
         All of this data is stored <strong>exclusively on your device</strong>. None of it is
         transmitted to any server. You can clear it at any time by uninstalling the Extension.
       </p>
 
-      <h2>4. Third-Party Services</h2>
+      <h2>4. Network Requests and Third-Party Services</h2>
       <p>
-        <strong>PrivacyGuard does not use any third-party services at runtime.</strong>
+        The Extension's <strong>only</strong> network request is to
+        <code>privacyguard-api.bbfydc.cn</code>, our own license server, to validate a Pro
+        license key you entered.
       </p>
       <ul>
         <li>No AI APIs are called</li>
-        <li>No cloud servers are contacted</li>
-        <li>No CDN resources are loaded</li>
-        <li>No external fonts, images, or scripts are fetched</li>
+        <li>No CDN resources, external fonts, images, or scripts are loaded</li>
+        <li>No analytics, telemetry, or diagnostic reporting of any kind</li>
+        <li>The Extension has no background worker and loads no remote code — everything it
+          runs is contained in the package</li>
       </ul>
       <p>
-        The Extension code is entirely self-contained. Once installed, it operates completely offline.
+        If you choose to upgrade to Pro, two independent processors are involved in the
+        purchase itself: <strong>Paddle</strong> handles the payment, and
+        <strong>Resend</strong> delivers your license email from our own domain. They handle
+        billing and email delivery under their own privacy policies. We never see or store your
+        full card details.
       </p>
 
       <h2>5. Permissions</h2>
-      <p>PrivacyGuard requests only one permission:</p>
+      <p>PrivacyGuard requests one storage permission plus host permissions for a limited set of pages:</p>
       <ul>
-        <li><strong>Storage:</strong> Used solely to save your detection preferences and daily scan
-          count locally in your browser. No data is synced to any external server.</li>
+        <li><strong>Storage:</strong> Used solely to save your detection preferences, counters
+          and Pro activation state locally in your browser. No data is synced to any external
+          server.</li>
+        <li><strong>Host permissions for the AI chat sites listed inside the Extension:</strong>
+          required for the core functionality — injecting the content script that watches what
+          you type or paste. On those pages the Extension reads only the message input you are
+          typing in, analyses it locally, and never transmits it. The full list of supported
+          sites is shown inside the Extension.</li>
+        <li><strong>Host permission for <code>privacyguard-api.bbfydc.cn</code> (and its
+          <code>privacyguard-api.2859955785.workers.dev</code> fallback):</strong> used only to
+          validate a Pro license key you enter.</li>
       </ul>
       <p>
-        The Extension may request <strong>host permissions</strong> to inject its content script
-        on websites where you may paste sensitive data. This is required for the core
-        functionality (monitoring paste events). No data is extracted from these pages.
+        The Extension does not request <code>&lt;all_urls&gt;</code> access and does not read
+        pages you are not typing into.
       </p>
 
-      <h2>6. Pro License (Future)</h2>
+      <h2>6. Pro License</h2>
       <p>
-        If you purchase a Pro license in the future, we may process your license key and
-        payment transaction through a third-party payment processor (e.g., Stripe, Lemon Squeezy).
-        The payment processor will collect billing information as described in their respective
-        privacy policies. We do not store your payment details.
+        Pro is available now. The purchase is processed by Paddle, and your license key is
+        emailed to you by Resend from our own domain (<code>license@bbfydc.cn</code>). The
+        license key is tied to the email address used at checkout. We store only the license
+        state needed to validate it: the key, the email address, and the expiry date.
       </p>
 
       <h2>7. Children's Privacy</h2>
@@ -115,9 +142,8 @@
       <h2>8. Changes to This Policy</h2>
       <p>
         We may update this Privacy Policy from time to time. Any changes will be reflected
-        with an updated "Last updated" date. If we ever change our data handling to collect
-        information (which we currently do not), we will notify users prominently within the
-        Extension before the change takes effect.
+        with an updated "Last updated" date, and we will notify users prominently inside the
+        Extension before a change takes effect.
       </p>
 
       <h2>9. Contact</h2>
@@ -130,8 +156,8 @@
       </ul>
 
       <div class="footer">
-        <p>PrivacyGuard — AI Chat Data Leak Protection & Privacy Shield</p>
-        <p>100% Local &middot; Zero Data Collection &middot; Zero Server Calls</p>
+        <p>PrivacyGuard — AI Chat Data Leak Protection</p>
+        <p>Local detection &middot; No prompt collection &middot; One server call to validate a Pro license</p>
       </div>
     </div>
   </div>
