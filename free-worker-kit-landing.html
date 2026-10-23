@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Cloudflare Worker Kit — Claude & GPT API Proxy</title>
-<meta name="description" content="Free, production-ready Cloudflare Worker that proxies Claude, DeepSeek and GPT so your API key never reaches the browser. MIT licensed.">
+<meta name="description" content="Free, production-ready Cloudflare Worker that proxies Claude, DeepSeek and other Anthropic-compatible LLMs so your API key never reaches the browser. MIT licensed.">
 <style>
   :root{
     --bg:#0e0f1a; --surface:#16182a; --line:#252a42; --text:#e9ecf5;
@@ -71,7 +71,7 @@
       <a href="#what">What's inside</a>
       <a href="#deploy">Deploy</a>
       <a href="#faq">FAQ</a>
-      <a class="btn btn-primary" href="ai-worker-kit-v1.0.0.zip" download>Download ZIP</a>
+      <a class="btn btn-primary" href="ai-worker-kit-v1.0.1.zip" download>Download ZIP</a>
     </nav>
   </div>
 </header>
@@ -81,12 +81,13 @@
   <div class="hero">
     <h1>Keep your AI API key out of the browser.</h1>
     <p class="lead">
-      A ready-to-deploy Cloudflare Worker that proxies Claude, DeepSeek and GPT for you.
+      A ready-to-deploy Cloudflare Worker that proxies Claude, DeepSeek and other
+      Anthropic-compatible LLMs for you.
       Your key lives in a Worker secret. Your web app talks to your Worker. Nobody else.
       <br><strong>Free download, MIT licensed, commercial use allowed.</strong>
     </p>
     <div class="actions">
-      <a class="btn btn-primary" href="ai-worker-kit-v1.0.0.zip" download>Download the kit (10 KB)</a>
+      <a class="btn btn-primary" href="ai-worker-kit-v1.0.1.zip" download>Download the kit (10 KB)</a>
       <a class="btn btn-ghost" href="#deploy">See the 10-minute setup</a>
     </div>
     <p class="note">No signup. No account. No telemetry. The ZIP contains everything you need.</p>
@@ -128,21 +129,22 @@
     <h2>Deploy in about ten minutes</h2>
     <p class="sub">Cloudflare Workers free tier is enough to start.</p>
     <ol class="steps">
-      <li>Unzip the kit. Run <code>npm i -g wrangler &amp;&amp; wrangler login</code>.</li>
-      <li>Put your provider key in a secret: <code>wrangler secret put UPSTREAM_API_KEY</code>.</li>
-      <li>Edit <code>wrangler.toml</code>: set <code>routes</code> to your hostname and add your domain's origins to the CORS allow-list.</li>
-      <li>Set your shared secret: <code>wrangler secret put SHARED_SECRET</code>.</li>
-      <li>Deploy: <code>wrangler deploy</code>. The output shows your Worker URL.</li>
-      <li>Point your front end at that URL and pass the shared secret in a header.</li>
+      <li>Unzip the kit, then install the Cloudflare CLI and log in:<br><code>npm install -g wrangler &amp;&amp; npx wrangler login</code></li>
+      <li>Store your provider key as a Worker secret:<br><code>npx wrangler secret put LLM_API_KEY</code></li>
+      <li>Generate a random shared secret and store it too:<br><code>node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code><br>then <code>npx wrangler secret put CLIENT_SECRET</code></li>
+      <li>Edit the config block at the top of <code>worker.js</code>: put your domain in <code>ALLOWED_ORIGINS</code> (this is the CORS allow-list), and set <code>LLM_BASE_URL</code> / <code>DEFAULT_MODEL</code> for your provider.</li>
+      <li>Deploy:<br><code>npx wrangler deploy</code> — the output shows your Worker URL.</li>
+      <li>Confirm the deploy:<br><code>curl https://&lt;your-worker&gt;.workers.dev/health</code> → <code>{"status":"ok"}</code></li>
+      <li>Point your front end at <code>/v1/chat</code> and send the shared secret in the <code>X-Client-Secret</code> header.</li>
     </ol>
-    <pre><code>POST https://your-worker.your-domain.workers.dev/v1/messages
-X-Auth-Secret: &lt;your shared secret&gt;
+    <pre><code>POST https://&lt;your-worker&gt;.workers.dev/v1/chat
+X-Client-Secret: &lt;your CLIENT_SECRET&gt;
 
-{"model":"claude-sonnet-4","messages":[{"role":"user","content":"hello"}]}</code></pre>
+{"messages":[{"role":"user","content":"hello"}]}</code></pre>
     <div class="callout">
-      <strong>Before you ship:</strong> never put the shared secret in front-end JavaScript either.
+      <strong>Before you ship:</strong> never put <code>CLIENT_SECRET</code> in front-end JavaScript either.
       Put it behind a login, or have the browser call your own backend.
-      The Worker stops the API key leak; it can't stop you from leaking the secret.
+      The Worker stops the API key leak; it can't stop you leaking the shared secret.
     </div>
   </section>
 
@@ -150,7 +152,7 @@ X-Auth-Secret: &lt;your shared secret&gt;
     <h2>FAQ</h2>
 
     <details><summary>Which providers does it support?</summary>
-      <p>Claude, DeepSeek and GPT out of the box. The upstream call is a normal HTTP request, so OpenAI-compatible and other providers work too — <code>CUSTOMIZE.md</code> shows how to change the URL, headers and body shape.</p>
+      <p><strong>DeepSeek works out of the box</strong> — it is the default. <strong>Claude</strong> is a one-line change to <code>LLM_BASE_URL</code> and <code>DEFAULT_MODEL</code>. <strong>OpenAI / GPT</strong> also works, but it uses the Chat Completions shape, so <code>callLLM()</code> needs the small body-and-response tweak shown in <code>CUSTOMIZE.md</code>. Any other Anthropic-compatible endpoint works the same way.</p>
     </details>
 
     <details><summary>Does it cost anything?</summary>
